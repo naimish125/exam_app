@@ -3,24 +3,20 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../Screens/Covid_api/model/covid_model.dart';
-
-class Api_http {
-
-  Future<Homemodel?> coviddata(String con) async {
-    String apilink =
-        "https://covid-19-tracking.p.rapidapi.com/v1/$con?=&=";
-    var response = await http.get(Uri.parse(apilink), headers: {
-      "X-RapidAPI-Key": "c166082712mshb7213b2ae9b62ddp1eb544jsn26839b0f4ec8",
-      "X-RapidAPI-Host": "covid-19-tracking.p.rapidapi.com"
+class ApiHelper
+{
+  Future<Datamodel> Apicall()
+  async {
+    String  link ="https://corona-virus-world-and-india-data.p.rapidapi.com/api";
+    Uri uri = Uri.parse(link);
+    var reespon = await http.get(uri,headers: {
+      'content-type': 'application/octet-stream',
+      'X-RapidAPI-Key': '0879344c6dmsha1627f90fd35f77p1ad740jsne6f395c3cb33',
+      'X-RapidAPI-Host': 'corona-virus-world-and-india-data.p.rapidapi.com'
     });
+    var json = jsonDecode(reespon.body);
+    Datamodel d1 = Datamodel.fromJson(json);
+    return d1;
 
-    if (response.statusCode == 200) {
-      var json = jsonDecode(response.body);
-
-      Homemodel h1 = Homemodel.fromJson(json);
-
-      return h1;
     }
-    return null;
-  }
 }

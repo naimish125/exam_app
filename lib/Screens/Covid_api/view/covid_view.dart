@@ -1,135 +1,85 @@
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:provider/provider.dart';
 
-import '../../../utils/api_helper.dart';
-import '../contoler/covid_controler.dart';
+import '../contoler/covid_provider.dart';
 import '../model/covid_model.dart';
 
-
-class CovidPage extends StatefulWidget {
-  const CovidPage({Key? key}) : super(key: key);
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({Key? key}) : super(key: key);
 
   @override
-  State<CovidPage> createState() => _CovidPageState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _CovidPageState extends State<CovidPage> {
+class _HomeScreenState extends State<HomeScreen> {
+  HomeProvider? homeProvidert,homeProviderf;
   @override
   Widget build(BuildContext context) {
-    Homecontroller homecontroller = Get.put(Homecontroller());
-    return SafeArea(
-      child: Scaffold(
+    homeProviderf = Provider.of<HomeProvider>(context,listen: false);
+    homeProvidert = Provider.of<HomeProvider>(context,listen: true);
+    return SafeArea(child: Scaffold(
         appBar: AppBar(
-          actions: [
-            IconButton(
-              onPressed: () {},
-              icon: Icon(Icons.menu),
-            ),
-          ],
+          title: Text("Covid APi"),centerTitle: true,
           backgroundColor: Colors.black,
-          title: Text("COVID-19"),
-          centerTitle: true,
         ),
-        body: Stack(
-          children: [
-            Container(
-              height: double.infinity,
-              width: double.infinity,
-              color: Colors.white54,
-            ),
-            GetBuilder<Homecontroller>(
-              builder: (controller) =>
-                  FutureBuilder(
-                    future: Api_http().coviddata(homecontroller.name == ""
-                        ? "india"
-                        : "${homecontroller.name}"),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasError) {
-                        return Center(
-                          child: Text("${snapshot.hasError}"),
-                        );
-                      } else if (snapshot.hasData) {
-                        Homemodel? h1 = snapshot.data;
-                        return SingleChildScrollView(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Column(crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                SizedBox(
-                                  height: 10,
-                                ),
-                                TextField(textInputAction: TextInputAction.next,
-                                  controller: homecontroller.txtname,
-                                  cursorColor: Colors.black,
-                                  decoration: InputDecoration(
-                                    enabledBorder: OutlineInputBorder(
-                                      borderSide:
-                                      BorderSide(color: Colors.black, width: 2.5),
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderSide:
-                                      BorderSide(color: Colors.black, width: 2.5),
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    suffixIcon: IconButton(
-                                      icon: Icon(Icons.search, color: Colors.black),
-                                      onPressed: () {
-                                        homecontroller.asign();
-                                      },
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 40,
-                                ), Center(
-                                  child: Text(
-                                    "Covid Data",
-                                    style: TextStyle(
-                                        fontSize: 20, fontWeight: FontWeight.w600),
-                                  ),
-                                ),SizedBox(
-                                  height: 20,
-                                ),
-                                Text(
-                                  "  Country           : ${h1!.countryText}",
-                                  style: TextStyle(
-                                      fontSize: 20, fontWeight: FontWeight.w600),
-                                ),
-                                SizedBox(height: 10,),
-                                Text(
-                                  "  Last Update    : ${h1.lastUpdate}",
-                                  style: TextStyle(
-                                      fontSize: 20, fontWeight: FontWeight.w600),
-                                ),SizedBox(height: 10,),
-                                Text(
-                                  "  Total Cases     : ${h1.totalCasesText}",
-                                  style: TextStyle(
-                                      fontSize: 20, fontWeight: FontWeight.w600),
-                                ),SizedBox(height: 10,),
-                                Text(
-                                  "  Total Deaths   : ${h1.totalDeathsText}",
-                                  style: TextStyle(
-                                      fontSize: 20, fontWeight: FontWeight.w600),
-                                ),
-                              ],
-                            ),
+        body: FutureBuilder(
+          future: homeProviderf!.getData(),
+          builder: (context, snapshot) {
+            if(snapshot.hasError)
+            {
+              return Text(("${snapshot.error}"),);
+            }
+            else if(snapshot.hasData)
+            {
+              Datamodel? rmap = snapshot.data;
+              return ListView.builder(
+                itemCount: rmap!.countriesStat!.length,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(color: Colors.white54,border: Border.all(width: 1),),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text("Country Name      :  ${rmap.countriesStat![index].countryName}",style: TextStyle(fontSize: 25),),
+                              SizedBox(height: 10,),
+                              Text("Cases :  ${rmap.countriesStat![index].cases}",style: TextStyle(fontSize: 25),),
+                              SizedBox(height: 10,),
+                              Text("Deaths  : ${rmap.countriesStat![index].deaths}",style: TextStyle(fontSize: 25),),
+                              SizedBox(height: 10,),
+                              Text("Totel_Rev  : ${rmap.countriesStat![index].totalRecovered}",style: TextStyle(fontSize: 25),),
+                              SizedBox(height: 10,),
+                              Text("NewDeaths  : ${rmap.countriesStat![index].newDeaths}",style: TextStyle(fontSize: 25),),
+                              SizedBox(height: 10,),
+                              Text("NewCase  : ${rmap.countriesStat![index].newCases}",style: TextStyle(fontSize: 25),),
+                              SizedBox(height: 10,),
+                              Text("Serious  : ${rmap.countriesStat![index].seriousCritical}",style: TextStyle(fontSize: 25),),
+                              SizedBox(height: 10,),
+                              Text("ActCase  : ${rmap.countriesStat![index].activeCases}",style: TextStyle(fontSize: 25),),
+                              SizedBox(height: 10,),
+                              Text("T.Case.P  : ${rmap.countriesStat![index].totalCasesPer1MPopulation}",style: TextStyle(fontSize: 25),),
+                              SizedBox(height: 10,),
+                              Text("D.Momth.P  : ${rmap.countriesStat![index].deathsPer1MPopulation}",style: TextStyle(fontSize: 25),),
+                              SizedBox(height: 10,),
+                              Text("T.Tests  : ${rmap.countriesStat![index].totalTests}",style: TextStyle(fontSize: 25),),
+                              SizedBox(height: 10,),
+                              Text("T.Per.P  : ${rmap.countriesStat![index].testsPer1MPopulation}",style: TextStyle(fontSize: 25),),
+                            ],
                           ),
-                        );
-                      }
-                      return Center(
-                        child: CircularProgressIndicator(
-                          color: Colors.black,
                         ),
-                      );
-                    },
-                  ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+                      ],
+                    ),
+                  );
+                },);
+            }
+            return CircularProgressIndicator();
+
+          },),
+        ));
+    }
 }

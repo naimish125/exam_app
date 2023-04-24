@@ -1,15 +1,22 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import 'Screens/Covid_api/contoler/covid_provider.dart';
 import 'Screens/Covid_api/view/covid_view.dart';
 
-void main() {
+void main()
+{
   runApp(
-    MaterialApp(
-      debugShowCheckedModeBanner: false,
-      routes: {
-        '/':(context) => CovidPage(),
-      },
-    ),
-  );
+      MultiProvider(
+          providers: [
+            ChangeNotifierProvider(create: (context) => HomeProvider(),),
+          ],
+          child: MaterialApp(
+            debugShowCheckedModeBanner: false,
+            routes: {
+              '/':(context) => HomeScreen(),
+            },
+          ),
+          ),
+      );
 }
